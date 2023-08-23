@@ -69,7 +69,7 @@ function Yourbooking () {
       <div className='d-flex row m-4'>
         {data.map(ob => (
           <>
-            <div class='card m-3' style={{ height: '800px', width: '600px' }}>
+            <div class='card m-3' style={{width: '400px' }}>
               <div class='card-header'>
                 <h4 className='text-center'>{ob.hotelName}</h4>{' '}
               </div>
