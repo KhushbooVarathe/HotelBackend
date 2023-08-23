@@ -6,7 +6,7 @@ function AddHotels () {
   const navigate = useNavigate()
   const [hotels, setHotels] = useState([])
   useEffect(() => {
-    axios.get('http://localhost:7000/api/hotels').then(res => {
+    axios.get('https://backend-eoh8.onrender.com/api/hotels').then(res => {
       console.log(res.data, 'hotelsssssssssssss')
       setHotels(res.data)
     })

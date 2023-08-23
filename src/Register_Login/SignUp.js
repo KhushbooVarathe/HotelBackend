@@ -54,8 +54,8 @@ function SignUp () {
       <div
         style={{
           height: '900px',
-          width: '900px',
-          marginLeft: '700px',
+          width: '800px',
+          marginLeft: '300px',
           marginTop: '20px'
         }}
         className='bg-light p-5'
