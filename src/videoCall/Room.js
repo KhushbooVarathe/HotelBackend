@@ -1,5 +1,5 @@
 import React from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams,Link } from 'react-router-dom'
 import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt'
 
 function Room() {
@@ -35,9 +35,17 @@ function Room() {
         
       })
     }
+  
   return (
-    <div>
-    <div ref={mymeeting}/>
+    <div className='container bg-light text-center'>
+    <div ref={mymeeting}>
+    {/* <Link className='mt-5'>Share Link</Link> */}
+
+    </div>
+    {/* <div className=''>
+
+    <Link className=''>Share Link</Link>
+    </div> */}
   </div>
   )
 }
