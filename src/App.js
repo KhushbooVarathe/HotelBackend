@@ -27,7 +27,7 @@ function App() {
         {/* <SideBarAdmin/> */}
         <Routes>
           <Route element={<PrivateComponent />}>
-            <Route path='/' element={<Home/>} />
+            <Route path='/home' element={<Home/>} />
             <Route path='/registeredUsers' element={<RegisteredUsers/>} />
             <Route path='/newadmin' element={<SignUp/>} />
             <Route path='/addhot' element={<AddHot/>} />

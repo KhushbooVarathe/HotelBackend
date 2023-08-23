@@ -102,19 +102,20 @@ function Navbaradmin () {
     <div>
       {/* <Intercepter/> */}
       <nav className='navbar navbar-expand-sm bg-dark p-3 navbar-dark'>
-        <a className='navbar-brand' href='#'>
-          <img
+        <a className='navbar-brand' href='/'>
+          {/* <img
             src='logo.png'
             alt='logo'
             style={{ height: '60px', width: '60px' }}
-          />
+          /> */}
+          <h1 className='text-danger'>ADMIN</h1>
         </a>
         <ul className='navbar-nav justify-content-end'>
           {name ? (
             <>
             <div className='d-flex flex-row mt-4'>
               <li className='nav-item active'>
-                <Link className='nav-link' to='/'>
+                <Link className='nav-link' to='/home'>
                   <h5>Home</h5>
                 </Link>
               </li>

@@ -41,7 +41,7 @@ function RegisteredUsers () {
               <th>Profile</th>
               <th>Username</th>
               <th>Email</th>
-              <th>Update_Users_Details</th>
+              {/* <th>Update_Users_Details</th> */}
               <th>Delete_Users</th>
               {/* <th></th> */}
             </tr>
@@ -56,9 +56,9 @@ function RegisteredUsers () {
                   </td>
                   <td>{ob.username}</td>
                   <td>{ob.email}</td>
-                  <td className='text-center'>
+                  {/* <td className='text-center'>
                     <Link className='btn btn-primary'>Update</Link>
-                  </td>
+                  </td> */}
                   <td className='text-center'>
                     <Link
                       className='btn btn-danger'

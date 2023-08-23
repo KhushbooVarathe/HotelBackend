@@ -22,7 +22,7 @@ function Login () {
       localStorage.setItem('refreshToken', JSON.stringify(res.data.refreshToken))
       localStorage.setItem('isAdmin', JSON.stringify(res.data.isAdmin))
       alert(res.data.data)
-      navigate('/')
+      navigate('/home')
         }else{
           alert('you are not authorized')
           navigate('/login')
