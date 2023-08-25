@@ -1,9 +1,11 @@
 import axios from 'axios'
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-
+import { useNavigate, Link } from 'react-router-dom'
+import config from '../config/Congif'
+import Intercepter from '../intercepter/Intercepter'
+import { toast } from 'react-toastify'
 function AddHot () {
-  const navigate=useNavigate()
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     name: '',
     type: '',
@@ -13,7 +15,7 @@ function AddHot () {
     desc: '',
     cheapestprice: '',
     rating: '',
-    image: null,
+    image: null
   })
 
   const handleChange = e => {
@@ -22,15 +24,10 @@ function AddHot () {
     } else {
       setFormData({ ...formData, [e.target.name]: e.target.value })
     }
-    // console.log('formData: ', formData);
   }
 
   const handleSubmit = e => {
     e.preventDefault()
-    const token = JSON.parse(localStorage.getItem('token'))
-    // console.log(token, typeof token)
-    const isAdmin = JSON.parse(localStorage.getItem('isAdmin'))
-    // console.log(isAdmin, 'isAdmin')
 
     // Create a FormData object to handle file uploads
     const formDataToSend = new FormData()
@@ -45,74 +42,43 @@ function AddHot () {
     formDataToSend.append('cheapestprice', formData.cheapestprice)
     formDataToSend.append('rating', formData.rating)
     formDataToSend.append('image', formData.image)
-    // Append the images to FormData
-    // formData.photos.forEach((image, index) => {
-    //   formDataToSend.append(`image_${index}`, image)
-    //   console.log('formDataToSend: ', formDataToSend)
-    // })
 
-    // Send the FormData object to the server
-    axios
-      .post('https://backend-eoh8.onrender.com/api/createHotels', formDataToSend
-      // , {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`,
-      //     isAdmin: `${isAdmin}`
-      //   }
-      // }
-      )
-      .then(res => {
-        // console.log(res.data, 'ressss')
-        alert(res.data)
+    try {
+      axios.post(`${config}/api/createHotels`, formDataToSend).then(res => {
+        toast.success(res.data, {
+          position: toast.POSITION.TOP_RIGHT
+          // autoClose: 3000, // Auto close the toast after 3 seconds
+        })
         navigate('/contact')
       })
+    } catch (error) {
+      // Handle the error here
+      console.error('An error occurred:', error)
+      // You can show an error toast or take any other appropriate action
+      toast.error('An error occurred. Please try again.', {
+        position: toast.POSITION.TOP_RIGHT
+      })
+    }
   }
 
-  //   const handleChange = (e) => {
-  //     if (e.target.name === 'photos') {
-  //       const selectedImages = Array.from(e.target.files);
-  //       setFormData({ ...formData, [e.target.name]: selectedImages });
-  //     } else {
-  //       setFormData({ ...formData, [e.target.name]: e.target.value });
-
-  //     }
-  //   };
-  //   const formDataToSend = new FormData();
-  //     formDataToSend.append('name', formData.name);
-  // formDataToSend.append('type', formData.type);
-  // formDataToSend.append('city', formData.city);
-  // formDataToSend.append('address', formData.address);
-  // formDataToSend.append('distance', formData.distance);
-  // formDataToSend.append('desc', formData.desc);
-  // formDataToSend.append('cheapestprice', formData.cheapestprice);
-  // formDataToSend.append('rating', formData.rating);
-
-  // // Append the images to FormData
-  // formData.photos.forEach((image, index) => {
-  //   formDataToSend.append(`image_${index}`, image);
-  // });
-  //   const handleSubmit = (e) => {
-  //     const token=JSON.parse(localStorage.getItem('token'))
-  //     console.log(token,typeof token)
-  //     const isAdmin=JSON.parse(localStorage.getItem('isAdmin'))
-  //     console.log(isAdmin,"isAdmin",formDataToSend)
-  //     e.preventDefault();
-
-  //     axios.post('http://localhost:7000/api/createHotels',{formDataToSend,token,isAdmin}).then(res=>{
-  //         console.log(res.data,"ressss")
-  //     })
-  //     // Handle form submission logic here, e.g., sending data to the server
-  //     console.log(formData,formDataToSend);
-  //   };
   return (
     <>
+      <Intercepter />
+      <Link className='btn btn-warning' to='/contact'>Go back</Link>
+
       <div className='container mt-5 bg-secondary text-light p-5'>
         <h1 className='text-center mb-4 bg-dark text-light p-3'>
           Add a New Hotel
         </h1>
-        <form onSubmit={handleSubmit} method='POST' encType='multipart/form-data'>
+        <form
+          onSubmit={handleSubmit}
+          method='POST'
+          encType='multipart/form-data'
+        >
           <div className='form-group'>
-            <label htmlFor='name'><h5>Name:</h5></label>
+            <label htmlFor='name'>
+              <h5>Name:</h5>
+            </label>
             <input
               type='text'
               className='form-control'
@@ -124,7 +90,9 @@ function AddHot () {
             />
           </div>
           <div className='form-group'>
-            <label htmlFor='type'><h5>Type:</h5></label>
+            <label htmlFor='type'>
+              <h5>Type:</h5>
+            </label>
             <input
               type='text'
               className='form-control'
@@ -136,7 +104,9 @@ function AddHot () {
             />
           </div>
           <div className='form-group'>
-            <label htmlFor='city'><h5>City:</h5></label>
+            <label htmlFor='city'>
+              <h5>City:</h5>
+            </label>
             <input
               type='text'
               className='form-control'
@@ -148,7 +118,9 @@ function AddHot () {
             />
           </div>
           <div className='form-group'>
-            <label htmlFor='address'><h5>Address:</h5></label>
+            <label htmlFor='address'>
+              <h5>Address:</h5>
+            </label>
             <input
               type='text'
               className='form-control'
@@ -160,7 +132,9 @@ function AddHot () {
             />
           </div>
           <div className='form-group'>
-            <label htmlFor='distance'><h5>Distance:</h5></label>
+            <label htmlFor='distance'>
+              <h5>Distance:</h5>
+            </label>
             <input
               type='text'
               className='form-control'
@@ -172,7 +146,9 @@ function AddHot () {
             />
           </div>
           <div className='form-group'>
-            <label htmlFor='image'><h5>Images:</h5></label>
+            <label htmlFor='image'>
+              <h5>Images:</h5>
+            </label>
             <input
               type='file'
               className='form-control'
@@ -184,7 +160,9 @@ function AddHot () {
             />
           </div>
           <div className='form-group'>
-            <label htmlFor='desc'><h5>Description:</h5></label>
+            <label htmlFor='desc'>
+              <h5>Description:</h5>
+            </label>
             <textarea
               className='form-control'
               id='desc'
@@ -196,7 +174,9 @@ function AddHot () {
             />
           </div>
           <div className='form-group'>
-            <label htmlFor='cheapestprice'><h5>Cheapest Price:</h5></label>
+            <label htmlFor='cheapestprice'>
+              <h5>Cheapest Price:</h5>
+            </label>
             <input
               type='number'
               className='form-control'
@@ -208,7 +188,9 @@ function AddHot () {
             />
           </div>
           <div className='form-group'>
-            <label htmlFor='rating'><h5>Rating:</h5></label>
+            <label htmlFor='rating'>
+              <h5>Rating:</h5>
+            </label>
             <input
               type='number'
               className='form-control'

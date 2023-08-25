@@ -16,7 +16,7 @@ function SideBarAdmin() {
          <Link className='btn btn-light' to='/login'  onClick={logoutfun}>Logout</Link>
   <Link to="/profile"  className={location.pathname === '/profile' ? 'active' : ''}>Profile</Link>
   <Link to="/videocall"  className={location.pathname === '/profile' ? 'active' : ''}>videocall</Link>
-  <Link to="/newadmin"  className={location.pathname === '/newadmin' ? 'active' : ''}>Create_Admin</Link>
+  <Link to="/newadmin"  className={location.pathname === '/newadmin' ? 'active' : ''}>Create Admin</Link>
   {/* <Link to="/admin">Admins</Link> */}
   <Link to="/seebooking" className={location.pathname === '/seebooking' ? 'active' : ''}>See Booking</Link>
   <Link to="/registeredUsers" className={location.pathname === '/registeredUsers' ? 'active' : ''}>Users</Link>

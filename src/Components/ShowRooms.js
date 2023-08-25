@@ -1,18 +1,21 @@
 import axios from 'axios'
+import { toast } from 'react-toastify'; // Import the toast object
+
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { Navigate, Outlet } from 'react-router-dom'
+// import { Navigate, Outlet } from 'react-router-dom'
+import baseUrl from '../config/Congif'
+import Intercepter from '../intercepter/Intercepter'
 function ShowRooms () {
-  const navigate = useNavigate()
-  const [updateroom, setUpdateRoom] = useState()
+  // const navigate = useNavigate()
+
   const [showModal, setShowModal] = useState(false) // State to control the first modal visibility
-  const [showUpdateModal, setShowUpdateModal] = useState(false) // State to control the second modal visibility
-  const token = JSON.parse(localStorage.getItem('token'))
-  // console.log(token, typeof token)
-  const isAdmin = JSON.parse(localStorage.getItem('isAdmin'))
-  // console.log(isAdmin, 'isAdmin')
+
+  const [isDemo1Open, setIsDemo1Open] = useState(false);
+
   const { id } = useParams()
   const [data, setData] = useState([])
+  const[modalshow,setModal]=useState(true)
   const [formData, setFormData] = useState({
     title: '',
     desc: '',
@@ -22,21 +25,22 @@ function ShowRooms () {
     photo: null
   })
   useEffect(() => {
-    axios
-      .get(`http://localhost:7000/api/gethotelroom/${id}`
-      // , {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`,
-      //     isAdmin: `${isAdmin}`
-      //   }
-      // }
-      )
-      .then(res => {
-        // console.log(res.data, 'resssssssssssss')
-        setData(res.data)
-      })
-  }, [])
-  console.log(data, 'dataa')
+    try {
+      axios.get(`${baseUrl}/api/gethotelroom/${id}`)
+        .then(res => {
+          setData(res.data);
+        });
+    } catch (error) {
+      // Handle the error here
+      console.error("An error occurred:", error);
+      // You can set an error state or take any other appropriate action
+      toast.error(error, {
+        position: toast.POSITION.TOP_RIGHT,
+        // autoClose: 3000,
+      });
+    }
+  }, [modalshow,isDemo1Open]);
+  
 
   const handleChange = e => {
     const { name, value } = e.target
@@ -86,132 +90,119 @@ function ShowRooms () {
   }
 
   const handleSubmit = e => {
-    e.preventDefault()
-
-    const formDataToSend = new FormData()
-
-    formDataToSend.append('title', formData.title)
-    formDataToSend.append('desc', formData.desc)
-    formDataToSend.append('price', formData.price)
-    formDataToSend.append('maxPeople', formData.maxPeople)
-
+    e.preventDefault();
+  
+    const formDataToSend = new FormData();
+  
+    formDataToSend.append('title', formData.title);
+    formDataToSend.append('desc', formData.desc);
+    formDataToSend.append('price', formData.price);
+    formDataToSend.append('maxPeople', formData.maxPeople);
+  
     formData.roomNumbers.forEach((roomNumber, index) => {
-      formDataToSend.append(`roomNumbers[${index}]`, roomNumber.number)
-    })
-
-    formDataToSend.append('photo', formData.photo)
-
-    // console.log(formDataToSend, 'formDataToSend')
-
+      formDataToSend.append(`roomNumbers[${index}]`, roomNumber.number);
+    });
+  
+    formDataToSend.append('photo', formData.photo);
+  
+    try {
+      axios
+        .post(`${baseUrl}/api/createRoom/${id}`, formDataToSend)
+        .then(res => {
+          toast.success(res.data, {
+            position: toast.POSITION.TOP_RIGHT,
+            // autoClose: 3000, // Auto close the toast after 3 seconds
+          });
+          setModal(!modalshow)
+        })
+        .catch(error => {
+          toast.error("An error occurred. Please try again.", {
+            position: toast.POSITION.TOP_RIGHT,
+            // autoClose: 3000,
+          });
+        });
+    } catch (error) {
+      // Handle the error here
+      console.error("An error occurred:", error);
+      // You can show an error toast or take any other appropriate action
+      toast.error("An error occurred. Please try again.", {
+        position: toast.POSITION.TOP_RIGHT,
+        // autoClose: 3000,
+      });
+    }
+  };
+  
+  function handleDeleteRooms(roomid) {
     axios
-      .post(`https://backend-eoh8.onrender.com/api/createRoom/${id}`, formDataToSend, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          isAdmin: `${isAdmin}`
-        }
-      })
+      .delete(`${baseUrl}/api/deleteRoom/${roomid}/${id}`)
       .then(res => {
-        // console.log(res.data, 'Response')
-        alert(res.data)
-        // navigate('/admins/:id')
-
-        // Reset the form fields after submitting
-        // setFormData({
-        //   title: '',
-        //   desc: '',
-        //   price: '',
-        //   maxPeople: '',
-        //   roomNumbers: [{ number: '' }],
-        //   photo: null,
-        // });
+        toast.success(res.data, {
+          position: toast.POSITION.TOP_RIGHT,
+          // autoClose: 3000, // Auto close the toast after 3 seconds
+        });
+        setIsDemo1Open(!isDemo1Open);
       })
+     
       .catch(error => {
-        console.error('Error:', error)
-      })
+        // Handle the error here
+        console.error("An error occurred:", error);
+        // You can show an error message or take any other appropriate action
+        toast.error("An error occurred. Please try again.", {
+          position: toast.POSITION.TOP_RIGHT,
+          // autoClose: 3000,
+        });
+      });
   }
-  // console.log(formData, 'formData')
-  function handleDeleteRooms (roomid) {
-    // e.preventDefault()
-    console.log('deleteROoms', roomid, 'deleterooom', id)
-    axios
-      .delete(`https://backend-eoh8.onrender.com/api/deleteRoom/${roomid}/${id}`
-      // , {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`,
-      //     isAdmin: `${isAdmin}`
-      //   }
-      // }
-      )
-      .then(res => {
-        // console.log(res.data,"resssssssssss")
-        alert(res.data)
-      })
-  }
-  function handleupdate () {
-    setShowUpdateModal(false)
-  }
+  
+  // function handleupdate () {
+  //   setShowUpdateModal(false)
+  // }
   function closebutton () {
     setShowModal(false)
   }
-  function handleUpdaterooms (id) {
-    console.log(id, 'handleUpdaterooms', data)
-    const newdata1 = data.filter(ob => ob._id == id)
-    console.log(newdata1)
-    setUpdateRoom(newdata1[0])
-    setShowUpdateModal(true)
-    // navigate(`/updateroom/${id}`)
-  }
+
   function haaa () {
     setShowModal(true)
   }
-  function handleSubmit1 () {
-    console.log('chalaaaaaaa')
-    // axios.put(`http://localhost:7000/api/updateRoom/`)
-  }
-  console.log('updateroom==>', updateroom)
-  function handleChange1 () {
-    console.log('heheh')
-  }
-  function handleRoomNumberChange1 () {
-    console.log('heheh')
-  }
-  function handleRemoveRoomNumber1 () {
-    console.log('heheh')
-  }
-  function handleFileChange1 () {
-    console.log('heheh')
-  }
-  function handleAddRoomNumber1 () {
-    console.log('heheh')
-  }
+
+
   return (
     <>
-      <Link
-        type='submit'
-        className='btn btn-primary m-5'
-        data-toggle='modal'
-        data-target='#myModal'
-        onClick={haaa}
+      <Intercepter />
+
+      <div
+        className='container-fluid text center row  mt-5 ml-5'
+        // style={{ marginLeft: '220px' }}
       >
-        ADD ROOMS
-      </Link>
-      {/* {data && data.map(ob=>
-        <Link
-       
-        className='btn btn-primary m-5'
-       onClick={()=>handleDeleteRooms(ob._id)}
-      >
-        DELETE ROOMS
-      </Link>
-        )} */}
-      <Link
-        className='btn btn-primary text-white px-4 pt-3'
-        style={{ marginLeft: '1600px' }}
-        data-toggle='collapse'
-        data-target='#demo1'
-      >
-        DELETE_ROOMS
-      </Link>
+        <div className='col-sm-4'>
+          <Link className='btn btn-warning' to={`/contact`}>
+            Go Back
+          </Link>
+        </div>
+        <div className='col-sm-4'>
+          <Link
+            type='submit'
+            className='btn btn-primary'
+            data-toggle='modal'
+            data-target='#myModal'
+            onClick={haaa}
+          >
+            ADD ROOMS
+          </Link>
+        </div>
+        <div className='col-sm-4'>
+          <Link
+            className='btn btn-primary text-white px-4 pt-3'
+            // style={{ marginLeft: '1600px' }}
+            data-toggle='collapse'
+            data-target='#demo1'
+          
+          >
+            DELETE ROOMS
+          </Link>
+        </div>
+      </div>
+
       <div
         id='demo1'
         className='collapse bg-light container'
@@ -221,8 +212,8 @@ function ShowRooms () {
           <>
             <thead>
               <tr>
-                <th>HOTEL_NAME</th>
-                <th>DELETE_HOTEL</th>
+                <th>ROOM</th>
+                <th>DELETE ROOM</th>
                 {/* <th>Email</th> */}
               </tr>
             </thead>
@@ -236,7 +227,8 @@ function ShowRooms () {
                     <td>
                       <Link
                         className='btn btn-danger'
-                        onClick={() => handleDeleteRooms(hotel._id)}
+                        onClick={() =>{ handleDeleteRooms(hotel._id)}}
+                        // onClick={()=>setIsDemo1Open(!isDemo1Open)}
                       >
                         DELETE
                       </Link>
@@ -247,21 +239,13 @@ function ShowRooms () {
           </>
         </table>
       </div>
-      {/* <div className="card " style={{height:'400px',width:'400px'}}>
-    <img className="card-img-top rounded-circle" src="favicon.ico" alt="Card image"   />
-    <div className="card-body">
-      <h4 className="card-title">John Doe</h4>
-      <p className="card-text">Some example text some example text. John Doe is an architect and engineer</p>
-      <a href="#" className="btn btn-primary stretched-link">See Profile</a>
-    </div>
-  </div> */}
-      <div className='d-flex'>
+
+      <div className='d-flex row ml-5 mt-5'>
         {data &&
           data.map(ob => (
             <div
-              className='card bg-white text-dark card-columns  m-3'
+              className='card bg-white text-dark m-3'
               style={{
-                height: '600px',
                 width: '400px',
                 textDecoration: 'none'
               }}
@@ -270,21 +254,11 @@ function ShowRooms () {
               {ob.photos.map(photo => (
                 <img
                   src={photo.filename}
-                  height='400px'
+                  height='300px'
                   width='400px'
                   alt='No image found'
                 />
               ))}
-              {/* {ob.photos.map(obj=>{
-              console.log(obj.filename,"obj")
-            })} */}
-
-              {/* <img
-              className='card-img-top rounded-circle'
-              src='favicon.ico'
-              alt='Card image'
-              style={{ height: '200px', width: '200px' }}
-            /> */}
               <div className='card-body '>
                 <h4 className='card-title'>ROOM:{ob.title}</h4>
                 <p className='card-text'>DESC:{ob.desc}</p>
@@ -292,19 +266,7 @@ function ShowRooms () {
                 {ob.roomNumbers.map(room => (
                   <p className='card-text'>ROOM_NUMBER :{room.number}</p>
                 ))}
-                <Link
-                  className='btn btn-danger'
-                  type='submit'
-                  data-toggle='modal'
-                  data-target='#myModal'
-                  onClick={() => handleUpdaterooms(ob._id)}
-                >
-                  UPDATE DETAILS
-                </Link>
-
-                {/* <a href="#" className="btn btn-primary">Add Rooms</a> */}
-                {/* <Link
-          to={`/admins/${ob._id}`} className='btn btn-secondary'> SEE ROOMS</Link> */}
+              
               </div>
             </div>
           ))}
@@ -417,7 +379,9 @@ function ShowRooms () {
                         required
                       />
                     </div>
-                    <button type='submit' className='btn btn-primary'>
+                    <button type='submit' className='btn btn-primary' 
+                    // onClick={()=>setModal(!modalshow)}
+                    >
                       Submit
                     </button>
                   </form>
@@ -431,138 +395,6 @@ function ShowRooms () {
                   className='btn btn-danger'
                   data-dismiss='modal'
                   onClick={closebutton}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : (
-        ''
-      )}
-      {showUpdateModal ? (
-        <div class='modal fade' id='myModal'>
-          <div class='modal-dialog modal-xl'>
-            <div class='modal-content'>
-              {/* <!-- Modal Header --> */}
-              <div class='modal-header'>
-                <h4 class='modal-title'>UPDATE</h4>
-                <button type='button' class='close' data-dismiss='modal'>
-                  &times;
-                </button>
-              </div>
-
-              {/* <!-- Modal body --> */}
-              <div class='modal-body'>
-                <div className='container p-4 mt-5'>
-                  {/* <h1 className="text-center">Add a New Room</h1> */}
-                  <form
-                    onSubmit={handleSubmit1}
-                    method='PUT'
-                    encType='multipart/form-data'
-                  >
-                    <div className='form-group'>
-                      <label>Title:</label>
-                      <input
-                        type='text'
-                        className='form-control'
-                        name='title'
-                        value={updateroom.title}
-                        onChange={handleChange1}
-                        required
-                      />
-                    </div>
-                    <div className='form-group'>
-                      <label>Description:</label>
-                      <textarea
-                        className='form-control'
-                        name='desc'
-                        rows='3'
-                        value={updateroom.desc}
-                        onChange={handleChange1}
-                        required
-                      />
-                    </div>
-                    <div className='form-group'>
-                      <label>Price:</label>
-                      <input
-                        type='number'
-                        className='form-control'
-                        name='price'
-                        value={updateroom.price}
-                        onChange={handleChange1}
-                        required
-                      />
-                    </div>
-                    <div className='form-group'>
-                      <label>Max People:</label>
-                      <input
-                        type='number'
-                        className='form-control'
-                        name='maxPeople'
-                        value={updateroom.maxPeople}
-                        onChange={handleChange1}
-                        required
-                      />
-                    </div>
-                    <div className='form-group'>
-                      <label>Room Numbers:</label>
-                      {updateroom.roomNumbers.map((roomNumber, index) => (
-                        <div key={index} className='input-group mb-2'>
-                          <input
-                            type='number'
-                            className='form-control'
-                            name='roomNumber'
-                            value={roomNumber.number}
-                            onChange={e => handleRoomNumberChange1(e, index)}
-                            required
-                          />
-                          <div className='input-group-append'>
-                            <button
-                              className='btn btn-danger'
-                              type='button'
-                              onClick={() => handleRemoveRoomNumber1(index)}
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                      <button
-                        className='btn btn-primary'
-                        type='button'
-                        onClick={handleAddRoomNumber1}
-                      >
-                        Add Room Number
-                      </button>
-                    </div>
-                    <div className='form-group'>
-                      <label>Photo:</label>
-                      <input
-                        type='file'
-                        className='form-control-file'
-                        name='photo'
-                        //  value={updateroom[0].filename}
-                        onChange={handleFileChange1}
-                        accept='photo/*'
-                        required
-                      />
-                    </div>
-                    <button type='submit' className='btn btn-primary'>
-                      Submit
-                    </button>
-                  </form>
-                </div>
-              </div>
-
-              {/* <!-- Modal footer --> */}
-              <div class='modal-footer'>
-                <button
-                  type='button'
-                  class='btn btn-secondary'
-                  data-dismiss='modal'
-                  onClick={handleupdate}
                 >
                   Close
                 </button>

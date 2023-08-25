@@ -1,69 +1,88 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-
+import config from '../config/Congif'
+import Intercepter from '../intercepter/Intercepter'
+import { toast } from 'react-toastify'
 function AddHotels () {
   const navigate = useNavigate()
   const [hotels, setHotels] = useState([])
+  const[modalshow,setModalShow]=useState(false)
+  const [hotelname, setHotelName] = useState('')
+  const [hotelid, setHotelId] = useState('')
   useEffect(() => {
-    axios.get('https://backend-eoh8.onrender.com/api/hotels').then(res => {
-      console.log(res.data, 'hotelsssssssssssss')
-      setHotels(res.data)
-    })
-  }, [])
-  function handleData () {
-    console.log('addhotel_function')
-  }
-  // console.log('hotelss', hotels)
-  function handleAddRooms (id) {
-    // console.log('add room for this hotel', id)
-    navigate('/admins')
-  }
-  function handleClick () {
-    console.log('sdfhsdfsdjfghd')
-  }
+    try {
+      axios.get(`${config}/api/hotels`).then(res => {
+    
+        setHotels(res.data)
+        console.log('res.data: ', res.data);
+      })
+    } catch (error) {
+     
+      toast.error(error, {
+        position: toast.POSITION.TOP_RIGHT
+      })
+    }
+  }, [modalshow])
+
   function handleDeleteHotel (id) {
     const token = JSON.parse(localStorage.getItem('token'))
-    // console.log(token, typeof token)
-    const isAdmin = JSON.parse(localStorage.getItem('isAdmin'))
-    // console.log(isAdmin, 'isAdmin')
-    console.log('DeleteHotel', id)
-    axios
-      .delete(`https://backend-eoh8.onrender.com/api/deleteHotels/find/${id}`
-      // , {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`,
-      //     isAdmin: `${isAdmin}`
-      //   }
-      // }
-      )
-      .then(res => {
-        console.log(res.data, 'rsgfgfgg')
-        alert(res.data)
-        navigate('/contact')
+
+    try {
+      axios.delete(`${config}/api/deleteHotels/find/${id}`).then(res => {
+        toast.success(res.data, {
+          position: toast.POSITION.TOP_RIGHT
+          // autoClose: 3000, // Auto close the toast after 3 seconds
+        })
+        setModalShow(!modalshow)
+        // navigate('/contact')
       })
+    } catch (error) {
+      toast.error('An error occurred. Please try again.', {
+        position: toast.POSITION.TOP_RIGHT
+      })
+    }
+  }
+
+  function handleDelete (hotelid, hotelName) {
+    setHotelName(hotelName)
+    setHotelId(hotelid)
   }
   return (
     <>
-      {/* <h1 className='bg-dark text-light p-4'>ADD HOTELS</h1><hr/> */}
-      <div className='  p-5'>
-        <Link
-          className='btn btn-primary px-4 pt-3'
-          style={{ marginLeft: '100px' }}
-          to='/addhot'
-        >
-          ADD_HOTELS
-        </Link>
-        <Link
-          className='btn btn-primary text-white px-4 pt-3'
-          style={{ marginLeft: '1600px' }}
-          data-toggle='collapse'
-          data-target='#demo1'
-        >
-          DELETE_HOTELS
-        </Link>
-        
+      <Intercepter />
 
+      <div
+        className='container-fluid text center row mt-5'
+        style={{ marginLeft: '220px' }}
+      >
+        <div className='col-sm-4'>
+          <Link className='btn btn-warning' to='/home'>
+            Go Back
+          </Link>
+        </div>
+        <div className='col-sm-4'>
+          <Link
+            className='btn btn-primary px-4 pt-3'
+            // style={{ marginLeft: '100px' }}
+            to='/addhot'
+          >
+            ADD HOTELS
+          </Link>
+        </div>
+        <div className='col-sm-4'>
+          <Link
+            className='btn btn-danger text-white px-4 pt-3'
+            // style={{ marginLeft: '1600px' }}
+            data-toggle='collapse'
+            data-target='#demo1'
+          >
+            DELETE HOTELS
+          </Link>
+        </div>
+      </div>
+      {/* <h1 className='bg-dark text-light p-4'>ADD HOTELS</h1><hr/> */}
+      <div className=''>
         <div
           id='demo1'
           className='collapse bg-light container'
@@ -73,8 +92,8 @@ function AddHotels () {
             <>
               <thead>
                 <tr>
-                  <th>HOTEL_NAME</th>
-                  <th>DELETE_HOTEL</th>
+                  <th>HOTEL NAME</th>
+                  <th>DELETE HOTEL</th>
                   {/* <th>Email</th> */}
                 </tr>
               </thead>
@@ -88,12 +107,58 @@ function AddHotels () {
                       <td>
                         <Link
                           className='btn btn-danger'
-                          onClick={() => handleDeleteHotel(hotel._id)}
+                          data-toggle='modal'
+                          data-target='#myModal'
+                          onClick={() => handleDelete(hotel._id, hotel.name)}
                         >
                           DELETE
                         </Link>
                       </td>
                     </tr>
+                    <div class='modal fade' id='myModal'>
+                      <div class='modal-dialog modal-sm'>
+                        <div class='modal-content'>
+                          {/* <!-- Modal Header --> */}
+                          {/* <div class="modal-header">
+          <h4 class="modal-title">Hotel you wants to delete</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+         */}
+                          {/* <!-- Modal body --> */}
+                          <div class='modal-body'>
+                            <h6 className='text-danger'>
+                              Are You Sure To delete {hotelname}{' '}
+                            </h6>
+                          </div>
+
+                          {/* <!-- Modal footer --> */}
+                          <div class='modal-footer'>
+                            <div class='row'>
+                              <div class='col-sm-6'>
+                                {' '}
+                                <Link
+                                  className='btn btn-danger'
+                                  data-dismiss='modal'
+                                  onClick={() => handleDeleteHotel(hotelid)}
+                                >
+                                  YES
+                                </Link>
+                              </div>
+                              <div class='col-sm-6'>
+                                {' '}
+                                <button
+                                  type='button'
+                                  class='btn btn-secondary'
+                                  data-dismiss='modal'
+                                >
+                                  NO
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </tbody>
                 ))}
             </>
@@ -114,15 +179,13 @@ function AddHotels () {
                   textDecoration: 'none'
                 }}
               >
-                {/* {ob.photos.map(obj=>{
-                    console.log(obj.filename,"obj")
-                  })} */}
-                <Link onClick={handleClick}>
+              
+                <Link >
                   <img
                     className='card-img-top '
-                    src={ob.photos[0].filename}
+                    src={ob.photoUrl}
                     alt='Card image'
-                    style={{ height: '200px', width: '400px' }}
+                    style={{ height: '250px', width: '400px' }}
                   />
                 </Link>
 

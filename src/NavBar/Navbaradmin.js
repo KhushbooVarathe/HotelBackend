@@ -100,14 +100,10 @@ function Navbaradmin () {
 
   return (
     <div>
-      {/* <Intercepter/> */}
+    
       <nav className='navbar navbar-expand-sm bg-dark p-3 navbar-dark'>
-        <a className='navbar-brand' href='/'>
-          {/* <img
-            src='logo.png'
-            alt='logo'
-            style={{ height: '60px', width: '60px' }}
-          /> */}
+        <a className='navbar-brand' href='#'>
+        
           <h1 className='text-danger'>ADMIN</h1>
         </a>
         <ul className='navbar-nav justify-content-end'>
@@ -119,11 +115,7 @@ function Navbaradmin () {
                   <h5>Home</h5>
                 </Link>
               </li>
-              {/* <li className='nav-item'>
-                <Link className='nav-link' to='/product'>
-                  <h5>Product</h5>
-                </Link>
-              </li> */}
+              
 
               {/* <li className='nav-item'>
                 <Link className='nav-link' to='/registeredUsers'>
@@ -156,7 +148,7 @@ function Navbaradmin () {
           ) : (
             <>
               <div
-                className='m-2'
+                className='m-2 d-flex'
                 style={{ marginLeft: '1500px' }}
               >
                 {/* <li className='nav-item '>
@@ -171,6 +163,11 @@ function Navbaradmin () {
                     <h5>Login</h5>
                   </Link>
                 </li>
+                {/* <li className='nav-item'>
+                <Link className='nav-link' to='/about'>
+                  <h5>About Us</h5>
+                </Link>
+              </li> */}
               </div>
             </>
           )}

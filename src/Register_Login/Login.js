@@ -1,40 +1,61 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import baseUrl from '../config/Congif';
+import { toast } from 'react-toastify'; // Import the toast object
 function Login () {
-  const [data, setData] = useState({})
-  const navigate = useNavigate()
-  function handleChange (e) {
-    setData({ ...data, [e.target.name]: e.target.value })
+  const [data, setData] = useState({});
+  const navigate = useNavigate();
+
+  function handleChange(e) {
+    setData({ ...data, [e.target.name]: e.target.value });
   }
-  function handleSubmit (e) {
-    e.preventDefault()
-    console.log(data, 'data')
-    axios.post('https://backend-eoh8.onrender.com/api/login', data).then(res => {
-      console.log(res.data, 'gggggggg')
-      if (typeof res.data == 'string'){
-        console.log(res.data)
-        alert(res.data)
-      }else{
-        if(res.data.isAdmin == true){
-      localStorage.setItem('name', JSON.stringify(res.data.user))
-      localStorage.setItem('token', JSON.stringify(res.data.token))
-      localStorage.setItem('refreshToken', JSON.stringify(res.data.refreshToken))
-      localStorage.setItem('isAdmin', JSON.stringify(res.data.isAdmin))
-      alert(res.data.data)
-      navigate('/home')
-        }else{
-          alert('you are not authorized')
-          navigate('/login')
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    
+    try {
+      axios.post(`${baseUrl}/api/login`, data).then(res => {
+        if (typeof res.data === 'string') {
+          toast.error(res.data, {
+            position: toast.POSITION.TOP_RIGHT,
+            // autoClose: 3000,
+          });
+        } else {
+          if (res.data.isAdmin === true) {
+            localStorage.setItem('name', JSON.stringify(res.data.user));
+            localStorage.setItem('token', JSON.stringify(res.data.token));
+            localStorage.setItem('refreshToken', JSON.stringify(res.data.refreshToken));
+            localStorage.setItem('isAdmin', JSON.stringify(res.data.isAdmin));
+            toast.success(res.data.data, {
+              position: toast.POSITION.TOP_RIGHT,
+              // autoClose: 3000,
+            });
+            navigate('/home');
+          } else {
+            toast.error(res.data, {
+              position: toast.POSITION.TOP_RIGHT,
+              // autoClose: 3000,
+            });
+            navigate('/login');
+          }
         }
-      }
-    })
+      });
+    } catch (error) {
+      // Handle the error here
+      console.error("An error occurred:", error);
+      // You can show an error message or take any other appropriate action
+      toast.error("An error occurred. Please try again.", {
+        position: toast.POSITION.TOP_RIGHT,
+        // autoClose: 3000,
+      });
+    }
   }
   return (
     <>
       <div
-        style={{ height: '500px', width: '500px' ,marginLeft:'750px',marginTop:'100px',padding:'20px'}}
-        className='bg-light '
+        style={{width:'500px',padding:'20px'}}
+        className='bg-light container mt-5 '
       >
         <div className='text-center'>
 
@@ -43,7 +64,7 @@ function Login () {
         </div>
         {/* <h1 className='bg-dark text-center text-light p-2'>LOGIN_ADMIN</h1> */}
         <form className='text-warning'>
-          <div className='form-group'>
+          {/* <div className='form-group'>
             <label htmlFor='username'>Username:</label>
             <input
               type='email'
@@ -55,7 +76,7 @@ function Login () {
               onChange={handleChange}
               required
             />
-          </div>
+          </div> */}
           <div className='form-group'>
             <label htmlFor='email'>Email:</label>
             <input

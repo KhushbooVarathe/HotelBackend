@@ -1,5 +1,5 @@
 import React, { useCallback, useState,useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 function VideoHome() {
     const [value,setValue]=useState()
@@ -17,7 +17,15 @@ function VideoHome() {
     },[navigate,value])
   return (
  <>
-  <h2 className='text-light text-center m-5'>Create Your call</h2>
+ <div className='row m-5'>
+ 
+      <div class="col-sm-12">
+        <Link to='/home' className='btn btn-warning'>Go Back</Link>
+      </div>
+    
+    
+ </div>
+ <h2 className='text-light text-center'>Create Your call</h2>
   <div className='container mt-5 d-flex'>
    
         <input type='text' className='form-control mb-1 p-4 mr-sm-2'placeholder='enter your code' value={value} onChange={e=>setValue(e.target.value)}/>
