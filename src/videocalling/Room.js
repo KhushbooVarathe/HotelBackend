@@ -4,9 +4,9 @@ import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt'
 
 function Room() {
     const user=JSON.parse(localStorage.getItem('name'))
-    console.log('user: ', user);
+   
     const { id } = useParams()
-    console.log('roomid: ', id)
+   
     const mymeeting = element => {
       const appID = 1935856324
       const serverSecret = '9b649f091a2a18042795b94120d3bf5e'

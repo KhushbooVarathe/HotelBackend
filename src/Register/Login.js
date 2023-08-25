@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
 import axios  from 'axios'
 import { useNavigate } from 'react-router-dom'
-import { memo } from "react";
+
+import baseUrl from '../config/Config';
+import { toast } from 'react-toastify'; // Import the toast object
 
 function Login () {
   const [data, setData] = useState({})
@@ -9,29 +11,54 @@ function Login () {
   function handleChange (e) {
     setData({ ...data, [e.target.name]: e.target.value })
   }
-  function handleSubmit (e) {
-    e.preventDefault()
-    // console.log(data, 'data')
-    axios.post('https://backend-eoh8.onrender.com/api/login', data).then(res => {
-      // console.log(res.data, 'gggggggg')
-      if (typeof res.data == 'string'){
-        // console.log(res.data,'fgjfjfj')
-        alert(res.data)
-      }else{
-        if(res.data.isAdmin == false){
-      localStorage.setItem('name', JSON.stringify(res.data.user))
-      localStorage.setItem('token', JSON.stringify(res.data.token))
-      localStorage.setItem('isAdmin', JSON.stringify(res.data.isAdmin))
-      localStorage.setItem('refreshToken', JSON.stringify(res.data.refreshToken))
-      alert(res.data.data)
-      navigate('/home')
-        }else{
-          alert('you are not authorized d-0dfv0;p0:0 ')
-          navigate('/login')
-        }
-      }
-    })
+  function handleSubmit(e) {
+    e.preventDefault();
+  
+    try {
+      axios.post(`${baseUrl}/api/login`, data)
+        .then(res => {
+          if (typeof res.data === 'string') {
+            toast.error(res.data, {
+              position: toast.POSITION.TOP_RIGHT,
+              // autoClose: 3000,
+            });
+          } else {
+            if (res.data.isAdmin === false) {
+              localStorage.setItem('name', JSON.stringify(res.data.user));
+              localStorage.setItem('token', JSON.stringify(res.data.token));
+              localStorage.setItem('isAdmin', JSON.stringify(res.data.isAdmin));
+              localStorage.setItem('refreshToken', JSON.stringify(res.data.refreshToken));
+              toast.success(res.data.data, {
+                position: toast.POSITION.TOP_RIGHT,
+                // autoClose: 3000,
+              });
+              navigate('/home');
+            } else {
+              toast.error("You are not authorized", {
+                position: toast.POSITION.TOP_RIGHT,
+                // autoClose: 3000,
+              });
+              navigate('/login');
+            }
+          }
+        })
+        .catch(error => {
+          // console.error("An error occurred:", error);
+          toast.error("An error occurred. Please try again.", {
+            position: toast.POSITION.TOP_RIGHT,
+            // autoClose: 3000,
+          });
+        });
+    } catch (error) {
+      console.error("An error occurred:", error);
+      // Handle the error here, you can show an error message to the user
+      toast.error("An error occurred. Please try again.", {
+        position: toast.POSITION.TOP_RIGHT,
+        // autoClose: 3000,
+      });
+    }
   }
+  
   return (
     <>
       <div
@@ -45,7 +72,7 @@ function Login () {
         </div>
         {/* <h1 className='bg-dark text-center text-light p-2'>LOGIN_ADMIN</h1> */}
         <form className='text-warning'>
-          <div className='form-group'>
+          {/* <div className='form-group'>
             <label htmlFor='username'>Username:</label>
             <input
               type='email'
@@ -57,7 +84,7 @@ function Login () {
               onChange={handleChange}
               required
             />
-          </div>
+          </div> */}
           <div className='form-group'>
             <label htmlFor='email'>Email:</label>
             <input
@@ -100,4 +127,4 @@ function Login () {
   )
 }
 
-export default memo(Login);
+export default Login;

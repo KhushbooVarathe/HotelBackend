@@ -3,94 +3,109 @@ import jwt_decode from 'jwt-decode'
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Intercepter from '../intercepter/Intercepter'
+import baseUrl from '../config/Config'
+import { toast } from 'react-toastify' // Import the toast object
+
 function Rooms () {
-  const navigate = useNavigate()
-  const today = new Date().toISOString().split('T')[0]; // Get current date in 'YYYY-MM-DD' format
+  const today = new Date().toISOString().split('T')[0] // Get current date in 'YYYY-MM-DD' format
   const token = JSON.parse(localStorage.getItem('token'))
-  // console.log(token, typeof token)
-  const isAdmin = JSON.parse(localStorage.getItem('isAdmin'))
-  // console.log(isAdmin, 'isAdmin')
   let { id } = useParams()
   const [data, setData] = useState([])
-  const[rooid,setROOID]=useState('')
+  const [rooid, setROOID] = useState('')
   const [formData, setFormData] = useState({
     fromDate: '',
-    toDate: '',
-  });
+    toDate: ''
+  })
   useEffect(() => {
-    axios
-      .get(`https://backend-eoh8.onrender.com/api/gethotelroomuser/${id}`
-      // , {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`,
-      //     isAdmin: `${isAdmin}`
-      //   }
-      // }
-      )
-      .then(res => {
-        // console.log(res.data, 'resssssssssssss')
-        setData(res.data)
+    try {
+      axios
+        .get(`${baseUrl}/api/gethotelroomuser/${id}`)
+        .then(res => {
+          // console.log(res.data, 'resssssssssssss')
+          setData(res.data)
+        })
+        .catch(error => {
+          console.error('An error occurred:', error)
+          toast.error('An error occurred. Please try again.', {
+            position: toast.POSITION.TOP_RIGHT
+            // autoClose: 3000,
+          })
+        })
+    } catch (error) {
+      console.error('An error occurred:', error)
+      toast.error('An error occurred. Please try again.', {
+        position: toast.POSITION.TOP_RIGHT
+        // autoClose: 3000,
       })
+    }
   }, [])
-  // console.log(data, 'dataa')
 
   let paramsid = id
-  // console.log(id, 'paramsid', paramsid)
-  function handleBooking (rooomid) {
-    // console.log('rooomidBooking', rooomid)
-    var decoded = jwt_decode(token)
-    // console.log("formData==========>",formData)
 
-    axios.post(`https://backend-eoh8.onrender.com/api/alreadybookingroom/${rooomid}`,formData).then(res=>{
-      // console.log("chalaa",res.data)
-      if( res.data==false){
-        alert(" these Room is not available for this day")
-      }else{
-   axios
-      .post(
-        `https://backend-eoh8.onrender.com/api/booking/${decoded.id}/${rooomid}/${paramsid}`,
-        formData
-        // {
-        //   headers: {
-        //     Authorization: `Bearer ${token}`,
-        //     isAdmin: `${isAdmin}`,
-        //     userID: `${decoded.id}`
-        //   }
-        // }
-      )
-      .then(res => {
-        // console.log(res.data)
-        // navigate('/yourbooking')
-      })
-      }
-   
-    })
-    // console.log(decoded.id, 'he')
-   
+  function handleBooking(rooomid) {
+    console.log('rooomid: ', rooomid);
+    var decoded = jwt_decode(token);
+    console.log('formData: ', formData);
+  
+    try {
+      axios
+        .post(`${baseUrl}/api/alreadybookingroom/${rooomid}`, formData)
+        .then(res => {
+          if (res.data === false) {
+            toast.error('These Room(s) are not available for this day', {
+              position: toast.POSITION.TOP_RIGHT
+            });
+          } else {
+            // Handle success or further actions
+            axios
+              .post(
+                `${baseUrl}/api/booking/${decoded.id}/${rooomid}/${paramsid}`,
+                formData
+              )
+              .then(res => {
+                toast.success(res.data.message, {
+                  position: toast.POSITION.TOP_RIGHT
+                });
+              })
+              .catch(error => {
+                console.error('An error occurred:', error);
+                toast.error(res.data, {
+                  position: toast.POSITION.TOP_RIGHT
+                });
+              });
+          }
+        })
+        .catch(error => {
+          console.error('An error occurred:', error);
+          toast.error('An error occurred. Please try again.', {
+            position: toast.POSITION.TOP_RIGHT
+          });
+        });
+    } catch (error) {
+      console.error('An error occurred:', error);
+      toast.error('An error occurred. Please try again.', {
+        position: toast.POSITION.TOP_RIGHT
+      });
+    }
   }
+  
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+      [e.target.name]: e.target.value
+    })
+  }
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle form submission here, e.g., send data to the server or perform any actions with the formData
-    // console.log(formData);
-    
-  };
-
-  function handleId(roomifd){
+  function handleId (roomifd) {
     // console.log("roomifd==================>",roomifd)
     setROOID(roomifd)
   }
   // console.log(rooid,"rrrrrrrrrrrrrrrroooooooooooooooifdd")/
   return (
     <>
-    <Intercepter/>
+      <Intercepter />
+      <Link className='btn btn-primary' to='/home'>Go Back</Link>
       <div className='d-flex row m-5'>
         {data &&
           data.map(ob => (
@@ -120,83 +135,94 @@ function Rooms () {
                 {ob.roomNumbers.map(room => (
                   <p className='card-text'>ROOM_NUMBER :{room.number}</p>
                 ))}
-              {/* {console.log(ob._id,"room ki id")} */}
-                {ob.bookedDate == Date.now() ? <Link className='btn btn-warning disabled'>Unavailable Now</Link>:  <Link
-                  className='btn btn-secondary'
-                  data-toggle='modal'
-                  data-target='#myModal'
-                  onClick={() => 
-                    handleId(ob._id)
-                
-                  }
-                >
-                  BOOK NOW
-                </Link>}
-                
+                {/* {console.log(ob._id,"room ki id")} */}
+                {ob.bookedDate == Date.now() ? (
+                  <Link className='btn btn-warning disabled'>
+                    Unavailable Now
+                  </Link>
+                ) : (
+                  <Link
+                    className='btn btn-secondary'
+                    data-toggle='modal'
+                    data-target='#myModal'
+                    onClick={() => handleId(ob._id)}
+                  >
+                    BOOK NOW
+                  </Link>
+                )}
 
-                  {/* <!-- The Modal --> */}
-        <div class='modal fade' id='myModal'>
-          <div class='modal-dialog modal-lg'>
-            <div class='modal-content'>
-              {/* <!-- Modal Header --> */}
-              <div class='modal-header'>
-                <h4 class='modal-title'>Modal Heading</h4>
-                <button type='button' class='close' data-dismiss='modal'>
-                  &times;
-                </button>
-              </div>
+                {/* <!-- The Modal --> */}
+                <div class='modal fade' id='myModal'>
+                  <div class='modal-dialog modal-lg'>
+                    <div class='modal-content'>
+                      {/* <!-- Modal Header --> */}
+                      <div class='modal-header'>
+                        {/* <h4 class='modal-title'>Modal Heading</h4> */}
+                        <button
+                          type='button'
+                          class='close'
+                          data-dismiss='modal'
+                        >
+                          &times;
+                        </button>
+                      </div>
 
-              {/* <!-- Modal body --> */}
-              <div class='modal-body'>
-              <form>
-        <label htmlFor="fromDate">From Date:</label>
-        <input
-          type="date"
-          id="fromDate"
-          name="fromDate"
-          value={formData.fromDate}
-          onChange={handleChange}
-          min={today}
-          required
-        /><br /><br />
+                      {/* <!-- Modal body --> */}
+                      <div class='modal-body'>
+                        <form>
+                          <label htmlFor='fromDate'>From Date:</label>
+                          <input
+                            type='date'
+                            id='fromDate'
+                            name='fromDate'
+                            value={formData.fromDate}
+                            onChange={handleChange}
+                            min={today}
+                            required
+                          />
+                          <br />
+                          <br />
 
-        <label htmlFor="toDate">To Date:</label>
-        <input
-          type="date"
-          id="toDate"
-          name="toDate"
-          value={formData.toDate}
-          onChange={handleChange}
-          min={today}
-          required
-        /><br /><br />
+                          <label htmlFor='toDate'>To Date:</label>
+                          <input
+                            type='date'
+                            id='toDate'
+                            name='toDate'
+                            value={formData.toDate}
+                            onChange={handleChange}
+                            min={today}
+                            required
+                          />
+                          <br />
+                          <br />
 
-        <Link className='btn btn-primary'
-           data-dismiss='modal' onClick={() => 
-                    handleBooking(rooid)
-                
-                  }  type="submit">Submit</Link>
-      </form>
-              </div>
+                          <Link
+                            className='btn btn-primary'
+                            data-dismiss='modal'
+                            onClick={() => handleBooking(rooid)}
+                            type='submit'
+                          >
+                            Submit
+                          </Link>
+                        </form>
+                      </div>
 
-              {/* <!-- Modal footer --> */}
-              <div class='modal-footer'>
-                <button
-                  type='button'
-                  class='btn btn-secondary'
-                  data-dismiss='modal'
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+                      {/* <!-- Modal footer --> */}
+                      <div class='modal-footer'>
+                        <button
+                          type='button'
+                          class='btn btn-secondary'
+                          data-dismiss='modal'
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           ))}
-
-      
       </div>
     </>
   )

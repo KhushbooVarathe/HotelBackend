@@ -1,7 +1,8 @@
-import React from 'react';
+import React,{useState} from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
+import not from "../Images/not.png"
 function UserNavBar() {
+    const[islogin,setIsLogin]=useState(false)
     const name = JSON.parse(localStorage.getItem('name'));
     const navigate = useNavigate();
 
@@ -9,6 +10,9 @@ function UserNavBar() {
         localStorage.clear();
         navigate('/login');
     }
+    // if(name!==null){
+    //     setIsLogin(!islogin)
+    // }
 
     const isLoggedIn = name !== null;
 
@@ -24,8 +28,9 @@ function UserNavBar() {
                 <ul className='navbar-nav justify-content-end'>
                     {isLoggedIn ? (
                         <div className='d-flex flex-row'>
+
                             <li className='nav-item active'>
-                                <Link className='nav-link' to='/'>
+                                <Link className='nav-link' to='/home'>
                                     <h5>HOME</h5>
                                 </Link>
                             </li>
@@ -36,21 +41,22 @@ function UserNavBar() {
                             </li>
                             <li className='nav-item'>
                                 <Link className='nav-link' to='/yourbooking'>
-                                    <h5>YOUR_BOOKING</h5>
+                                    <h5>YOUR BOOKING</h5>
                                 </Link>
                             </li>
                             <li className='nav-item'>
                                 <Link className='nav-link' to='/videocall'>
-                                    <h5>Video_Call</h5>
+                                    <h5>Video Call</h5>
                                 </Link>
                             </li>
-                            <div className='d-flex flex-row' style={{ marginLeft: '1500px' }}>
+                            <div className='d-flex flex-row' style={{ marginLeft: '1000px' }}>
+                          
                                 <li className='nav-item'>
-                                    <Link className='nav-link bg-white text-dark' onClick={logout} to='/login'>
+                                    <Link className='nav-link bg-white text-dark mr-5 ml-5' onClick={logout} to='/login'>
                                         <h5>Logout</h5>
                                     </Link>
                                 </li>
-                                <h4 className='text-white mt-2 ml-4'><i className='fas fa-user-circle'></i>{name}</h4>
+                                <h4 className='text-white mt-2 ml-4'>{name}</h4>
                             </div>
                         </div>
                     ) : (
@@ -65,10 +71,19 @@ function UserNavBar() {
                                     <h5>Login</h5>
                                 </Link>
                             </li>
+                            <li className='nav-item'>
+                                <Link className='nav-link' to='/about'>
+                                    <h5>About Us</h5>
+                                </Link>
+                            </li>
                         </div>
                     )}
                 </ul>
             </nav>
+
+           
+
+
         </>
     );
 }
