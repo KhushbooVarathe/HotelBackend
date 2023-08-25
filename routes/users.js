@@ -8,7 +8,7 @@ const {
   deleteUsers,
   getoneUser
 } = require('../controllers/users')
-const { verifyToken, verifyUser } = require('../utils/verifyToken')
+const { verifyToken, verifyUser, verifyUser1 } = require('../utils/verifyToken')
 console.log('auth api')
 // app.get('/checkauthentication', verifyToken, async (req, res, next) => {
 //   res.send('you are logged in')
@@ -28,7 +28,7 @@ console.log('auth api')
 // const upload = multer({ storage });
 app.get('/getUsers', getUsers)
 app.get('/getoneUser/:id', getoneUser)
-app.put('/updateUsers/:id', verifyUser, updateUsers)
+app.put('/updateUser/:id', verifyUser1, updateUsers)
 
 app.post('/createUsers', verifyUser, createUsers)
 

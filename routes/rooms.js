@@ -6,9 +6,9 @@ const bodyParser = require('body-parser');
 app.use(express.urlencoded({ extended: false }))
 app.use('/uploads', express.static('uploads'))
 app.use(bodyParser.json());
-const {AllBookedRooms,CancelBooking,AlreadyBookedHotelRooms,getoneRoom,BookedRooms,Room,deleteRoom,updateRoom,createRoom,AddHotelRoom,YourBookedRooms}=require('../controllers/rooms')
+const {AllBookedRooms,CancelBooking,ReviewRoom,AlreadyBookedHotelRooms,getoneRoom,BookedRooms,Room,deleteRoom,updateRoom,createRoom,AddHotelRoom,YourBookedRooms}=require('../controllers/rooms')
 // const {verifyUser}=require('../controllers/rooms')
-const { verifyAdmin ,verifyUser} = require('../utils/verifyToken')
+const { verifyAdmin ,verifyUser, verifyUser1} = require('../utils/verifyToken')
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         // console.log(req,'ressssqqqqq',file)
@@ -39,5 +39,5 @@ app.post('/alreadybookingroom/:id',AlreadyBookedHotelRooms)
 //getroom according to hotel
 app.get('/gethotelroom/:id',verifyAdmin,AddHotelRoom)
 app.get('/gethotelroomuser/:id',AddHotelRoom)
-
+app.post('/review/:id',verifyUser1,ReviewRoom)
 module.exports=app;

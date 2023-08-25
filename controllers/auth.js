@@ -7,10 +7,18 @@ app.use(express.json())
 const UserSchema = require('../modals/Users')
 // const secretAccesskey='hewfehfhbgbshfbeheheh22122hhgfkdvbpdmgdnAfhcgdfd'
 const register = async (req, res, next) => {
-  // console.log(req.body, 'fyuuuuuu', req.file, typeof req.file)
+  console.log('req: ', req.body);
   try {
-    const { username, email, password, isAdmin, city, address, DOB } = req.body
+    const { username, email, password, isAdmin, city, address, DOB, mobile } = req.body
+    console.log('number: ', mobile);
     const { filename, path } = req.file
+
+    // Check if the email already exists in the database
+    const existingUser = await userSchema.findOne({ email: email })
+    if (existingUser) {
+      return res.send({ error: 'Email is already registered' })
+    }
+
     // Generate a salt with 10 rounds, this will be used to hash the password
     const saltRounds = 10
     const hashedPassword = await bcrypt.hash(password, saltRounds)
@@ -18,12 +26,14 @@ const register = async (req, res, next) => {
     const newUser = new userSchema({
       username: username,
       email: email,
-      password: hashedPassword, // Store the hashed password in the database
+      password: hashedPassword,
+      mobile: mobile,
       isAdmin: isAdmin,
       photos: { filename: filename, path: path },
       city: city,
       address: address,
-      DOB: DOB
+      DOB: DOB,
+     
     })
 
     const newnewUser = await newUser.save()
@@ -35,80 +45,8 @@ const register = async (req, res, next) => {
     next(err)
   }
 }
-// const login = async (req, res, next) => {
-//   try {
-//     console.log('hello');
-//     const { email, password } = req.body;
 
-//     // Find the user by email in the database
-//     const user = await userSchema.findOne({ email });
-//     console.log(user, 'user');
-//     if (!user) {
-//       return res.send('User not found');
-//     }
-//     if(!user.refreshToken){
-//       console.log('token not found')
-//       const refreshToken = jwt.sign(
-//         { id: user._id, isAdmin: user.isAdmin },
-//         process.env.JWT_REFRESH_SECRET,
-//         {
-//           expiresIn: '7d', // Adjust the expiration as needed
-//         }
-//       );
 
-//       // Save the refresh token in the user's database record
-//       user.refreshToken = refreshToken;
-//       await user.save();
-//     }
-
-//     // Compare the provided password with the stored hashed password
-//     const isPasswordValid = await bcrypt.compare(password, user.password);
-//     console.log('isPasswordValid', isPasswordValid);
-//     if (!isPasswordValid) {
-//       return res.send('Invalid password');
-//     }
-
-//     // Generate an access token
-//     const accessToken = jwt.sign(
-//       { id: user._id, isAdmin: user.isAdmin },
-//       process.env.JWT_SECRET,
-//       {
-//         expiresIn: '1hr',
-//       }
-//     );
-
-//     // Generate a refresh token
-//     const refreshToken = jwt.sign(
-//       { id: user._id, isAdmin: user.isAdmin },
-//       process.env.JWT_REFRESH_SECRET,
-//       {
-//         expiresIn: '7d', // Adjust the expiration as needed
-//       }
-//     );
-
-//     // Save the refresh token in the user's database record
-//     user.refreshToken = refreshToken;
-//     await user.save();
-
-//     console.log('accessToken', accessToken);
-//     console.log('refreshToken', refreshToken);
-
-//     res
-//       .cookie('access_token', accessToken, {
-//         httpOnly: true,
-//       })
-//       .status(200)
-//       .send({
-//         data: 'Login successful',
-//         isAdmin: user.isAdmin,
-//         user: user.username,
-//         token: accessToken,
-//         refreshToken:refreshToken
-//       });
-//   } catch (err) {
-//     next(err);
-//   }
-// };
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body

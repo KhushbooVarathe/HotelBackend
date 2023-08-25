@@ -10,6 +10,10 @@ const UserSchema=new mongoose.Schema({
         required:true,
         unique:true
     },
+    mobile:{
+        type:String,
+        // required:true
+    },
     DOB:{
         type:String,
         // required:true
@@ -49,10 +53,7 @@ const UserSchema=new mongoose.Schema({
         min:0,
         max:5
     },
-    rooms:{
-        type:[String],
-        
-    },
+   
     cheapestPrice:{
         type:Number,
         

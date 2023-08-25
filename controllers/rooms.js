@@ -1,6 +1,7 @@
 const RoomSchema = require('../modals/Room')
 const UserSchema=require('../modals/Users')
 const HotelSchema = require('../modals/Hotels')
+const ReviewSchema=require('../modals/Review')
 const createError = require('../utils/error')
 const BookedRoom = require('../modals/Bookedrooms')
 var express = require('express')
@@ -126,7 +127,7 @@ const getoneRoom = async (req, res, next) => {
   }
 }
 const AlreadyBookedHotelRooms = async (req, res, next) => {
-  console.log("alreadybookedrooms route", req.body, req.params.id);
+  // console.log("alreadybookedrooms route", req.body, req.params.id);
   try {
     const getData = await BookedRoom.find({ roomId: req.params.id });
 
@@ -134,18 +135,22 @@ const AlreadyBookedHotelRooms = async (req, res, next) => {
       console.log("No room found with this id");
       return res.send("No room found with this id");
     } else {
-      console.log(getData, "getdataaaaaaa", typeof getData);
-      const fromDateToMatch = req.body.fromDate; // Keep it as a string
+      // console.log(getData, "getdataaaaaaa", typeof getData);
+      const fromDateToMatch = new Date(req.body.fromDate); // Parse the fromDate
+      const toDateToMatch = new Date(req.body.toDate);     // Parse the toDate
 
       let isAlreadyBooked = false;
 
       getData.forEach((ob) => {
-        const matchingFromDate = ob.fromDate.includes(req.body.fromDate);
-        const matchingToDate = ob.toDate.includes(req.body.toDate);
+        const bookedFromDate = new Date(ob.fromDate);
+        const bookedToDate = new Date(ob.toDate);
 
-        console.log(ob.fromDate, "obbbbbbbbbbbb", matchingFromDate, matchingToDate);
+        console.log(bookedFromDate, bookedToDate);
 
-        if (matchingFromDate && matchingToDate) {
+        if (
+          fromDateToMatch >= bookedFromDate &&
+          toDateToMatch <= bookedToDate
+        ) {
           isAlreadyBooked = true;
         }
       });
@@ -163,13 +168,50 @@ const AlreadyBookedHotelRooms = async (req, res, next) => {
 };
 
 
+
+
+
+
+const ReviewRoom = async (req, res, next) => {
+  try {
+    console.log('req: ', req.body);
+
+    // Assuming req.body contains review data
+    const review = req.body; // Use review directly
+
+    // Create a new Review instance using the model
+    const newReview = new ReviewSchema({
+      roomreview: review,
+      // Set other fields here if needed
+    });
+
+    console.log('newReview: ', newReview);
+
+    // Save the new review to the database
+    const savedReview = await newReview.save();
+    console.log('savedReview: ', savedReview);
+
+    res.status(201).send('Review added successfully');
+  } catch (error) {
+    console.error('Error adding review:', error);
+    res.status(500).send('Error adding review');
+  }
+};
+
+const getReview=async(req,res,next)=>{
+  
+}
+
+
+
+
 const BookedRooms = async (req, res, next) => {
   try {
     const { fromDate, toDate } = req.body;
     const { userid, roomid, paramsid } = req.params;
 
     // Validate fromDate and toDate
-    if (!fromDate || !toDate || new Date(fromDate) >= new Date(toDate)) {
+    if (!fromDate || !toDate || new Date(fromDate) > new Date(toDate)) {
       return res.status(400).json({ error: 'Invalid date range' });
     }
 
@@ -182,16 +224,15 @@ const BookedRooms = async (req, res, next) => {
       return res.status(404).json({ error: 'Hotel or room not found' });
     }
 
-    // Create an object to store room details
-    // const roomDetails = {
-    //   roomTitle: roomdata.title,
-    //   roomPrice: roomdata.price,
-    //   roomMaxPeople: roomdata.maxPeople,
-    //   roomNumber: roomdata.roomNumbers[0].number,
-    //   roomdesc: roomdata.desc,
-    // };
+    const existingBookings = await BookedRoom.find({
+      roomId: roomid,
+      fromDate: { $lte: toDate },
+      toDate: { $gte: fromDate },
+    });
 
-    // Create a new document using the BookedRoom model
+    if (existingBookings.length > 0) {
+      return res.status(400).json({ error: 'Room already booked for the selected date range' });
+    }  
     const newBookedRoom = new BookedRoom({
       userId: userid,
       roomId:roomid,
@@ -258,48 +299,6 @@ const bookings = await BookedRoom.find({ userId })
 
 
 
-// const YourBookedRooms = async (req, res, next) => {
-//   console.log('your booking', req.params.id)
-//   const userId = req.params.id
-//   try {
-//     // Use the BookedRoom model to find all documents with the given userId
-//     const bookings = await BookedRoom.find({ userId })
-
-//     console.log('Your bookings:', bookings, typeof bookings)
-
-//     // Use Promise.all to wait for all the room data and hotel data requests to complete
-//     const bookingDataPromises = bookings.map(async booking => {
-//       console.log(booking.roomId, 'hggggggggggggggggggggggfjghfj')
-//       const getBooked = await BookedRoom.find({ roomId: booking.roomId })
-//       console.log(getBooked, 'getbooked')
-
-//       // Find room data using the RoomSchema model
-//       const bookedRoom = await RoomSchema.findById(booking.roomId)
-//       console.log(bookedRoom, 'bookedrommm')
-
-//       // Find hotel data using the HotelSchema model
-//       const bookedHotel = await HotelSchema.findById(booking.hotelId)
-//       console.log(bookedHotel, 'bookedhotel')
-
-//       // Return an object containing both room and hotel data for the current booking
-//       return { room: bookedRoom, hotel: bookedHotel, booking: getBooked }
-//     })
-
-//     // Wait for all data requests to complete
-//     const bookingData = await Promise.all(bookingDataPromises)
-
-//     // Now bookingData will contain an array of objects, each containing room and hotel data for each booking
-//     console.log('Booking data with room and hotel information:', bookingData)
-
-//     // You can send the bookingData as a response to the client if needed
-//     res.json(bookingData)
-//   } catch (error) {
-//     // Handle any errors that occurred during the process
-//     console.error('Error fetching data:', error)
-//     res.status(500).send('Error fetching data')
-//   }
-// }
-
 
 const CancelBooking = async (req, res, next) => {
   try {
@@ -327,61 +326,7 @@ const CancelBooking = async (req, res, next) => {
 
 
 
-// const CancelBooking = async (req, res, next) => {
-//   console.log('cancel booking', req.params.roomid, req.params.userid, req.body);
 
-//   req.body.isBooking = false;
-//   console.log(req.body.dta, 'rewrfdd');
-
-//   try {
-//     const roomId = req.params.roomid; // Extract the room ID from the request parameters
-
-//     const getbookedRoom = await BookedRoom.findByIdAndUpdate(
-//       req.body.dta,
-//       { isBooking: false }, // Update data: Set the 'isBooking' property to false
-//       { new: true } // Option: Return the updated document
-//     ).exec();
-
-//     if (!getbookedRoom) {
-//       return res.status(404).json({ error: 'Booking not found' });
-//     }
-
-//     console.log(getbookedRoom, "getbookedRoom");
-
-//     // You can now use the 'getbookedRoom' object to perform any further processing if needed.
-
-//     // Finally, you can send a response or do further processing.
-//     res.status(200).json({ message: 'Booking canceled successfully' });
-//   } catch (error) {
-//     console.error('Error while canceling booking:', error);
-//     res.status(500).json({ error: 'Something went wrong' });
-//   }
-// };
-// const AllBookedRooms = async (req, res, next) => {
-//   try {
-//     const allrooms = await BookedRoom.find({});
-//     console.log(allrooms, "allrooms");
-
-//     const allUserDataPromises = allrooms.map(async (ob) => {
-//       const roomData = await RoomSchema.findById(ob.roomId);
-//       console.log('roomData: ', roomData);
-//       const hotelData = await HotelSchema.findById(ob.hotelId);
-//       console.log('hotelData: ', hotelData);
-//       console.log(ob.userId, "obj");
-//       const userData = await UserSchema.findById(ob.userId);
-//       console.log('userData', userData);
-//       return { userData, roomData, hotelData }; // Return userData, roomData, and hotelData
-//     });
-
-//     const allUserDataWithRoomAndHotelData = await Promise.all(allUserDataPromises);
-//     console.log('allUserDataWithRoomAndHotelData', allUserDataWithRoomAndHotelData);
-
-//     res.send(allUserDataWithRoomAndHotelData);
-//   } catch (error) {
-//     console.error('Error while fetching all booked rooms:', error);
-//     res.status(500).json({ error: 'Something went wrong' });
-//   }
-// };
 
 const AllBookedRooms = async (req, res, next) => {
   try {
@@ -416,6 +361,7 @@ module.exports = {
   YourBookedRooms,
   getoneRoom,
   createRoom,
+  ReviewRoom,
   deleteRoom,
   updateRoom,
   AddHotelRoom,AllBookedRooms

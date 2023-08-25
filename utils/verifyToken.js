@@ -5,7 +5,7 @@ const verifyToken = async (req, res, next) => {
   console.log('requesttttttttttttt=>>>>>>>>>>>: ',  req,req.headers);
   // const token = req.cookies.access_token;
   const token=req.headers.authorization;
-  console.log('token',token)
+  console.log('token===========>',token)
   const tokenWithoutBearer = token.split(' ')[1];
 console.log(tokenWithoutBearer);
   console.log("token1111ffffffffffffffffffffffffff11111111", tokenWithoutBearer,req.body);
@@ -30,6 +30,8 @@ const verifyUser = async (req, res, next) => {
   verifyToken(req, res, () => {
     console.log(req, req.body, "user object");
     console.log(req.params, "reqqq");
+    console.log('req.body.id === req.params.id || req.body.isAdmin: ', req.body.id === req.params.id || req.body.isAdmin);
+
     if (req.body.id === req.params.id || req.body.isAdmin) {
       next();
     } else {
@@ -40,9 +42,9 @@ const verifyUser = async (req, res, next) => {
 const verifyUser1 = async (req, res, next) => {
   console.log(req.body, "mainreqqqq");
   verifyToken(req, res, () => {
-    console.log(req, req.body, "user object");
+    console.log(req, req.body, "user object",req.body._id);
     console.log(req.params, "reqqq");
-    if (req.body.id === req.params.id || req.body.isAdmin) {
+    if (req.body._id === req.params.id || req.body.isAdmin || req.body.userId === req.params.id) {
       next();
     } else {
       return next(createError(403, "You are not authorized."));

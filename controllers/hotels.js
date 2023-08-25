@@ -1,5 +1,5 @@
 const HotelSchema = require('../modals/Hotels')
-const baseUrl = 'http://localhost:7000/' 
+const baseUrl = 'http://localhost:7000' 
 const createHotel = async (req, res, next) => {
   console.log('req.body', req.body,typeof req.body,typeof req.file,req.file)
   const { name, type, city, address, distance,desc,cheapestprice,rating} = req.body
@@ -14,7 +14,7 @@ const createHotel = async (req, res, next) => {
     desc:desc,
     cheapestprice:cheapestprice,
     rating:rating,
-    photos: {filename:`${baseUrl}${req.file.path}`}
+    photos: {filename:`${req.file.path}`}
   })
   console.log('newHotellllllll', newHotel)
   try {
@@ -60,18 +60,44 @@ const deleteHotels = async (req, res, next) => {
   }
 }
 
+// const hotels = async (req, res, next) => {
+  
+//   try {
+//     console.log('I am hotel routesooooooooo', req.body, 'hehehheeh')
+//     console.log("heeeeeeeeeeeeeeeeeeeeeeee")
+//     const AllHotels = await HotelSchema.find()
+//     console.log('AllHotels=========>>.: ', AllHotels);
+//    const hotelss= AllHotels.map(data=>{
+   
+//   const hotelurl=`${baseUrl}${data.photos[0].filename}`
+//     return hotelurl }
+//     )
+//     console.log('hotelss: ', hotelss);
+//     res.status(200).send(AllHotels)
+//   } catch (err) {
+//     next(err)
+//     // console.log("er",err)
+//     // res.status(500).json(err)
+//   }
+// }
 const hotels = async (req, res, next) => {
-  console.log('I am hotel routesooooooooo', req.body, 'hehehheeh')
-
   try {
-    const AllHotels = await HotelSchema.find()
-    res.status(200).send(AllHotels)
+    console.log('I am hotel routes', req.body, 'hehehheeh');
+    console.log("heeeeeeeeeeeeeeeeeeeeeeee");
+    
+    const AllHotels = await HotelSchema.find();
+    
+    const hotelss = AllHotels.map(data => {
+      const hotelurl = `${baseUrl}/${data.photos[0].filename}`;
+      return { ...data.toObject(), photoUrl: hotelurl };
+    });
+    
+    console.log('hotelss: ', hotelss);
+    res.status(200).send(hotelss);
   } catch (err) {
-    next(err)
-    // console.log("er",err)
-    // res.status(500).json(err)
+    next(err);
   }
-}
+};
 
 const getonehotel=async(req,res,next)=>{
     console.log("I am hotel routes",req.body,"hehehheeh")

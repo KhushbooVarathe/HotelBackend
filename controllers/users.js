@@ -32,22 +32,26 @@ const createUsers = async (req, res, next) => {
 
 
 const updateUsers = async (req, res, next) => {
-  console.log('req.body', req.body)
-  
-  // try {
-  //   const updatenewUser = await UserSchema.findByIdAndUpdate(
-  //     req.params.id,
-  //     req.body,
-  //     { new: true }
-  //   )
-  //   console.log('updatenewUser', updatenewUser)
-  //   res.status(200).send(updatenewUser)
-  // } catch (err) {
-  //   // console.log("er",err)
-  //   // res.status(500).json(err)
-  //   next(err)
-  // }
+  console.log('req.body: ', req.body);
+ 
+  try {
+    const updatedUserData = req.body;
+      
+    // Update user data based on the provided ID
+    const updatenewUser = await UserSchema.findByIdAndUpdate(
+     
+      req.params.id,
+      updatedUserData,
+      { new: true }
+    );
+    console.log('updatenewUser: ', updatenewUser);
+
+    res.status(200).send(updatenewUser);
+  } catch (err) {
+    next(err);
+  }
 }
+
 
 const deleteUsers = async (req, res, next) => {
   console.log('req.body', req.params.id)
@@ -78,16 +82,24 @@ const getUsers = async (req, res, next) => {
 }
 
 const getoneUser = async (req, res, next) => {
-  console.log('I am User routes', req.body, 'hehehheeh')
-
   try {
-    const AllUsers = await UserSchema.findById(req.params.id)
-    res.status(200).send(AllUsers)
+    const singleUser = await UserSchema.findById(req.params.id);
+    if (!singleUser) {
+      return res.status(404).send({ error: 'User not found' });
+    }
+
+    // Assuming user has a photos array similar to hotels
+    const userPhotoUrl = `${process.env.baseUrl}/${singleUser.photos[0].path}`;
+
+    const userWithPhotoUrl = {
+      ...singleUser.toObject(),
+      photoUrl: userPhotoUrl
+    };
+
+    res.status(200).send(userWithPhotoUrl);
   } catch (err) {
-    next(err)
-    // console.log("er",err)
-    // res.status(500).json(err)
+    next(err);
   }
-}
+};
 
 module.exports = { getoneUser,updateUsers, getUsers, createUsers, deleteUsers }
