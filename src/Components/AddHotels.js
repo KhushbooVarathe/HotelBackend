@@ -185,19 +185,26 @@ function AddHotels () {
                     className='card-img-top '
                     src={ob.photoUrl}
                     alt='Card image'
-                    style={{ height: '250px', width: '400px' }}
+                    // style={{ height: '250px', width: '400px' }}
                   />
                 </Link>
 
                 <div className='card-body'>
-                  <h4 className='card-title'>{ob.name}</h4>
-                  <p className='card-text'>{ob.desc}</p>
-                  <p className='card-text'>Ratings:{ob.rating}</p>
+                  <h4 className='card-title text-danger'>{ob.name}</h4>
+                  <p className='card-text'>Desc:{" "}{ob.desc}</p>
+                  <p className='card-text'>Ratings:{" "}{ob.rating}{" "}<i class='fas fa-star'></i></p>
                   {/* <a href="#" className="btn btn-primary">Add Rooms</a> */}
-                  <Link to={`/admins/${ob._id}`} className='btn btn-secondary'>
+                  
+                  <Link to={`/admins/${ob._id}`} className='btn btn-secondary mr-5'>
                     {' '}
-                    SEE ROOMS
+                    See Rooms
                   </Link>
+              <details>
+                <summary>All Reviews :</summary>
+                <ul>
+                  <li>gggfggfgfffgf</li>
+                </ul>
+              </details>
                 </div>
               </div>
             </>

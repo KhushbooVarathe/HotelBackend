@@ -44,7 +44,7 @@ function App () {
             <Route path='/contact' element={<AddHotels />} />
             <Route path='/seebooking' element={<Bookings />} />
             <Route path='/videocall' element={<VideoHome />} />
-            <Route path='/room/:id' element={<Room />} />
+            <Route path='/room/:id' element={<Room/>} />
             <Route path='/admin' element={<>Admins</>} />
 
             <Route path='/admins/:id' element={<ShowRooms />} />

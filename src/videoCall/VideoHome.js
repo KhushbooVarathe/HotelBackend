@@ -12,8 +12,10 @@ function VideoHome() {
     }
     
     const navigate=useNavigate()
+
     const joinmeet=useCallback(()=>{
-        navigate(`/room/${value}`)
+      window.location.assign(`/room/${value}`)
+        // navigate(`/room/${value}`)
     },[navigate,value])
   return (
  <>
