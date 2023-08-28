@@ -167,40 +167,64 @@ const AlreadyBookedHotelRooms = async (req, res, next) => {
   }
 };
 
+ const bookedreview=async(req,res,next)=>{
 
+ }
 
-
-
-
-const ReviewRoom = async (req, res, next) => {
+ const ReviewRoom = async (req, res, next) => {
   try {
-    console.log('req: ', req.body);
+    const bookingId = req.body.ob;
+    const newReview = req.body.review;
 
-    // Assuming req.body contains review data
-    const review = req.body; // Use review directly
+    // Find the booked room by ID
+    const bookedRoom = await BookedRoom.findById(bookingId);
 
-    // Create a new Review instance using the model
-    const newReview = new ReviewSchema({
-      roomreview: review,
-      // Set other fields here if needed
-    });
+    if (!bookedRoom) {
+      return res.status(404).send('Booked room not found');
+    }
 
-    console.log('newReview: ', newReview);
+    // Update the review field
+    bookedRoom.review = newReview;
 
-    // Save the new review to the database
-    const savedReview = await newReview.save();
-    console.log('savedReview: ', savedReview);
+    // Save the changes
+    await bookedRoom.save();
 
-    res.status(201).send('Review added successfully');
-  } catch (error) {
-    console.error('Error adding review:', error);
-    res.status(500).send('Error adding review');
+    res.status(200).send('Review added successfully');
+  } catch (err) {
+    next(err);
+    // Handle errors appropriately
   }
 };
 
-const getReview=async(req,res,next)=>{
-  
-}
+
+
+
+// const ReviewRoom = async (req, res, next) => {
+//   try {
+//     console.log('req: ', req.body);
+
+//     // Assuming req.body contains review data
+//     const review = req.body; // Use review directly
+
+//     // Create a new Review instance using the model
+//     const newReview = new ReviewSchema({
+//       roomreview: review,
+//       // Set other fields here if needed
+//     });
+
+//     console.log('newReview: ', newReview);
+
+//     // Save the new review to the database
+//     const savedReview = await newReview.save();
+//     console.log('savedReview: ', savedReview);
+
+//     res.status(201).send('Review added successfully');
+//   } catch (error) {
+//     console.error('Error adding review:', error);
+//     res.status(500).send('Error adding review');
+//   }
+// };
+
 
 
 
@@ -363,6 +387,7 @@ module.exports = {
   createRoom,
   ReviewRoom,
   deleteRoom,
+  bookedreview,
   updateRoom,
   AddHotelRoom,AllBookedRooms
 }

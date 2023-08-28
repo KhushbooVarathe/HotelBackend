@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 
 const Bookedrooms = new mongoose.Schema({
+  review:{type: String},
    userId: { type: String, required: true },
    roomId:{ type: String, required: true },
   roomTitle: { type: String, required: true },
