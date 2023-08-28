@@ -55,14 +55,19 @@ function Home () {
   
         const todaysBookingCount = todaysBookings.length;
   
-        console.log('Todays Bookings: ', todaysBookings);
-        console.log('Todays Booking Count: ', todaysBookingCount);
+        // console.log('Todays Bookings: ', todaysBookings);
+        // console.log('Todays Booking Count: ', todaysBookingCount);
     
       if(todaysBookingCount>0) {
-        toast.info(`Today's booking notification. Please  check!`, {
-          position: toast.POSITION.TOP_RIGHT,
-          autoClose: 3000, // Close after 3 seconds
-        });
+        todaysBookings.map(ob=>{
+          if(ob.isBooking){
+            toast.info(`Today's booking notification. Please  check!`, {
+              position: toast.POSITION.TOP_RIGHT,
+              autoClose: 3000, // Close after 3 seconds
+            });
+          }
+        })
+      
       } 
         
       })

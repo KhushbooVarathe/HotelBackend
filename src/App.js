@@ -13,7 +13,7 @@ import YourBooking from './bookings/Yourbooking'
 import SignUp from './Register/SignUp'
 import YourPayment from './payment/YourPayment'
 import VideoHome from './videocalling/VideoHome'
-import Room from './videocalling/VideoHome'
+import Room from './videocalling/Room'
 import Layout from './layout/Layout'
 import About from './layout/About'
 function App () {
@@ -37,7 +37,7 @@ function App () {
             <Route path='/rooms/:id' element={<Rooms />} />
             <Route path='/yourbooking' element={<YourBooking />} />
             <Route path='/videocall' element={<VideoHome/>} />
-            <Route path='/videocall' element={<Room/>} />
+            <Route path='/room/:id' element={<Room/>} />
             <Route path='/pay' element={<YourPayment/>} />
           </Route>
           <Route path='/login' element={<Login />} />

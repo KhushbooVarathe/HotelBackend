@@ -9,7 +9,7 @@ import baseUrl from '../config/Config'
 function Yourbooking () {
   const navigate = useNavigate()
   const [data, setData] = useState([])
-const[changedata,setChangeData]=useState(false)
+  const [changedata, setChangeData] = useState(false)
   const today = new Date() // Get today's date
   const todayDateString = today.toISOString().split('T')[0] // Convert t
   const token = JSON.parse(localStorage.getItem('token'))
@@ -50,8 +50,8 @@ const[changedata,setChangeData]=useState(false)
         .put(`${baseUrl}/api/cancelbooking/${cancelid}`, {})
         .then(res => {
           toast.success(res.data.message, {
-            position: toast.POSITION.TOP_RIGHT,
-          });
+            position: toast.POSITION.TOP_RIGHT
+          })
           setChangeData()
         })
         .catch(error => {
@@ -75,9 +75,10 @@ const[changedata,setChangeData]=useState(false)
     setReview(e.target.value)
   }
   let reviewData = {}
-  function handleAddreview (ob) {
+  function handleAddreview (ob,userId) {
+    console.log('ob: ', ob);
     try {
-      reviewData = { review, ...ob }
+      reviewData = { review,ob,userId }
       console.log('reviewData: ', reviewData)
 
       axios
@@ -152,8 +153,10 @@ const[changedata,setChangeData]=useState(false)
               <div className='card-footer'>
                 {ob.isBooking ? (
                   <>
+                  
                     <div>
-                      {ob.fromDate === todayDateString ? (
+                      {ob.fromDate === todayDateString ||
+                      ob.fromDate < todayDateString ? (
                         <>
                           <Link
                             className='btn btn-success'
@@ -168,7 +171,7 @@ const[changedata,setChangeData]=useState(false)
                               <br />
                               <Link
                                 className='btn btn-primary'
-                                onClick={() => handleAddreview(ob)}
+                                onClick={() => handleAddreview(ob._id,ob.userId)}
                               >
                                 Submit
                               </Link>
