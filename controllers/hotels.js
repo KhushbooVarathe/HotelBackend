@@ -15,7 +15,7 @@ const createHotel = async (req, res, next) => {
     desc: desc,
     cheapestprice: cheapestprice,
     rating: rating,
-    photos: { filename: `${req.file.path}` }
+    photos: { filename: `${req.file.filename}` }
   })
   console.log('newHotellllllll', newHotel)
   try {

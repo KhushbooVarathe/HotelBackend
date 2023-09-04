@@ -1,7 +1,7 @@
 const RoomSchema = require('../modals/Room')
-const UserSchema=require('../modals/Users')
+const UserSchema = require('../modals/Users')
 const HotelSchema = require('../modals/Hotels')
-const ReviewSchema=require('../modals/Review')
+const ReviewSchema = require('../modals/Review')
 const createError = require('../utils/error')
 const BookedRoom = require('../modals/Bookedrooms')
 var express = require('express')
@@ -13,10 +13,10 @@ const createRoom = async (req, res, next) => {
   const hotelId = req.params.hotelId
   console.log(hotelId, 'hotelId', req.body, req.file)
   req.body.roomNumbers = [{ number: req.body.roomNumbers[0] }]
-  // req.body.photos = [{ filename: req.file.filename, path: req.file.path }]
-  req.body.photos = [{ filename: `${baseUrl}${req.file.path}` }]
+  req.body.photos = [{ filename: req.file.filename }]
   const newRoom = new RoomSchema(req.body)
   console.log(newRoom, 'newRoom')
+
   try {
     const savedRoom = await newRoom.save()
     console.log(savedRoom, 'savedRoom')
@@ -32,6 +32,7 @@ const createRoom = async (req, res, next) => {
     next(error)
   }
 }
+
 const updateRoom = async (req, res, next) => {
   console.log('req.body', req.body)
   req.body.photos = [{ filename: `${baseUrl}${req.file.path}` }]
@@ -87,7 +88,6 @@ const Room = async (req, res, next) => {
   }
 }
 
-
 const AddHotelRoom = async (req, res, next) => {
   console.log(req.params.id, 'I am AddHotelRoom routes')
 
@@ -129,75 +129,70 @@ const getoneRoom = async (req, res, next) => {
 const AlreadyBookedHotelRooms = async (req, res, next) => {
   // console.log("alreadybookedrooms route", req.body, req.params.id);
   try {
-    const getData = await BookedRoom.find({ roomId: req.params.id });
+    const getData = await BookedRoom.find({ roomId: req.params.id })
 
     if (getData.length === 0) {
-      console.log("No room found with this id");
-      return res.send("No room found with this id");
+      console.log('No room found with this id')
+      return res.send('No room found with this id')
     } else {
       // console.log(getData, "getdataaaaaaa", typeof getData);
-      const fromDateToMatch = new Date(req.body.fromDate); // Parse the fromDate
-      const toDateToMatch = new Date(req.body.toDate);     // Parse the toDate
+      const fromDateToMatch = new Date(req.body.fromDate) // Parse the fromDate
+      const toDateToMatch = new Date(req.body.toDate) // Parse the toDate
 
-      let isAlreadyBooked = false;
+      let isAlreadyBooked = false
 
-      getData.forEach((ob) => {
-        const bookedFromDate = new Date(ob.fromDate);
-        const bookedToDate = new Date(ob.toDate);
+      getData.forEach(ob => {
+        const bookedFromDate = new Date(ob.fromDate)
+        const bookedToDate = new Date(ob.toDate)
 
-        console.log(bookedFromDate, bookedToDate);
+        console.log(bookedFromDate, bookedToDate)
 
         if (
           fromDateToMatch >= bookedFromDate &&
           toDateToMatch <= bookedToDate
         ) {
-          isAlreadyBooked = true;
+          isAlreadyBooked = true
         }
-      });
+      })
 
       if (isAlreadyBooked) {
-        res.send(false);
+        res.send(false)
       } else {
-        res.send(true);
+        res.send(true)
       }
     }
   } catch (error) {
-    console.error("Error fetching booked rooms:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error('Error fetching booked rooms:', error)
+    res.status(500).json({ error: 'Internal Server Error' })
   }
-};
+}
 
- const bookedreview=async(req,res,next)=>{
+const bookedreview = async (req, res, next) => {}
 
- }
-
- const ReviewRoom = async (req, res, next) => {
+const ReviewRoom = async (req, res, next) => {
   try {
-    const bookingId = req.body.ob;
-    const newReview = req.body.review;
+    const bookingId = req.body.ob
+    const newReview = req.body.review
 
     // Find the booked room by ID
-    const bookedRoom = await BookedRoom.findById(bookingId);
+    const bookedRoom = await BookedRoom.findById(bookingId)
 
     if (!bookedRoom) {
-      return res.status(404).send('Booked room not found');
+      return res.status(404).send('Booked room not found')
     }
 
     // Update the review field
-    bookedRoom.review = newReview;
+    bookedRoom.review = newReview
 
     // Save the changes
-    await bookedRoom.save();
+    await bookedRoom.save()
 
-    res.status(200).send('Review added successfully');
+    res.status(200).send('Review added successfully')
   } catch (err) {
-    next(err);
+    next(err)
     // Handle errors appropriately
   }
-};
-
-
-
+}
 
 // const ReviewRoom = async (req, res, next) => {
 //   try {
@@ -225,41 +220,39 @@ const AlreadyBookedHotelRooms = async (req, res, next) => {
 //   }
 // };
 
-
-
-
-
 const BookedRooms = async (req, res, next) => {
   try {
-    const { fromDate, toDate } = req.body;
-    const { userid, roomid, paramsid } = req.params;
+    const { fromDate, toDate } = req.body
+    const { userid, roomid, paramsid } = req.params
 
     // Validate fromDate and toDate
     if (!fromDate || !toDate || new Date(fromDate) > new Date(toDate)) {
-      return res.status(400).json({ error: 'Invalid date range' });
+      return res.status(400).json({ error: 'Invalid date range' })
     }
 
     const [hoteldata, roomdata] = await Promise.all([
       HotelSchema.findById(paramsid),
-      RoomSchema.findById(roomid),
-    ]);
+      RoomSchema.findById(roomid)
+    ])
 
     if (!hoteldata || !roomdata) {
-      return res.status(404).json({ error: 'Hotel or room not found' });
+      return res.status(404).json({ error: 'Hotel or room not found' })
     }
 
     const existingBookings = await BookedRoom.find({
       roomId: roomid,
       fromDate: { $lte: toDate },
-      toDate: { $gte: fromDate },
-    });
+      toDate: { $gte: fromDate }
+    })
 
     if (existingBookings.length > 0) {
-      return res.status(400).json({ error: 'Room already booked for the selected date range' });
-    }  
+      return res
+        .status(400)
+        .json({ error: 'Room already booked for the selected date range' })
+    }
     const newBookedRoom = new BookedRoom({
       userId: userid,
-      roomId:roomid,
+      roomId: roomid,
       hotelName: hoteldata.name,
       roomTitle: roomdata.title,
       roomPrice: roomdata.price,
@@ -272,110 +265,91 @@ const BookedRooms = async (req, res, next) => {
       isBooking: true,
       fromDate: fromDate,
       toDate: toDate
-    });
+    })
 
     // Save the new document in the database
-    await newBookedRoom.save();
+    await newBookedRoom.save()
 
     // Update bookedDate in RoomSchema
     try {
       await RoomSchema.updateOne(
         { _id: roomid },
         { $push: { bookedDate: fromDate } }
-      );
+      )
 
-      console.log('Room data updated successfully');
+      console.log('Room data updated successfully')
     } catch (err) {
-      console.error('Error updating room data:', err);
-      return res.status(500).json({ error: 'Error updating room data' });
+      console.error('Error updating room data:', err)
+      return res.status(500).json({ error: 'Error updating room data' })
     }
 
-    console.log('Data saved successfully');
-    res.status(200).json({ message: 'Data saved successfully' });
+    console.log('Data saved successfully')
+    res.status(200).json({ message: 'Data saved successfully' })
   } catch (error) {
-    console.error('Error saving data:', error);
-    res.status(500).json({ error: 'An unexpected error occurred' });
+    console.error('Error saving data:', error)
+    res.status(500).json({ error: 'An unexpected error occurred' })
   }
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const YourBookedRooms=async(req,res,next)=>{
-  console.log('your booking', req.params.id)
-  const userId = req.params.id
-const bookings = await BookedRoom.find({ userId })
-
-    console.log('Your bookings:', bookings, typeof bookings)
-    res.send({data:"hehehe",bookings})
 }
 
+const YourBookedRooms = async (req, res, next) => {
+  console.log('your booking', req.params.id)
+  const userId = req.params.id
+  const bookings = await BookedRoom.find({ userId })
 
-
+  console.log('Your bookings:', bookings, typeof bookings)
+  res.send({ data: 'hehehe', bookings })
+}
 
 const CancelBooking = async (req, res, next) => {
   try {
-    const cancelId = req.params.cancelid;
-    console.log(cancelId, "paramsidddddd");
+    const cancelId = req.params.cancelid
+    console.log(cancelId, 'paramsidddddd')
 
     // Find the booked room by its ID and update the isBooking field to false
     const cancelRoomBooking = await BookedRoom.findByIdAndUpdate(
       cancelId,
       { isBooking: false },
       { new: true } // This option returns the updated document
-    );
+    )
 
     if (!cancelRoomBooking) {
-      return res.status(404).json({ error: 'Booking not found' });
+      return res.status(404).json({ error: 'Booking not found' })
     }
 
-    console.log('Booking canceled:', cancelRoomBooking);
-    res.status(200).json({ message: 'Booking canceled successfully' });
+    console.log('Booking canceled:', cancelRoomBooking)
+    res.status(200).json({ message: 'Booking canceled successfully' })
   } catch (error) {
-    console.error('Error canceling booking:', error);
-    res.status(500).json({ error: 'An unexpected error occurred' });
+    console.error('Error canceling booking:', error)
+    res.status(500).json({ error: 'An unexpected error occurred' })
   }
-};
-
-
-
-
+}
 
 const AllBookedRooms = async (req, res, next) => {
   try {
-    const allrooms = await BookedRoom.find({});
-    console.log(allrooms, "allrooms", typeof allrooms);
-    
-    const resultArray = [];
+    const allrooms = await BookedRoom.find({})
+    console.log(allrooms, 'allrooms', typeof allrooms)
 
-    await Promise.all(allrooms.map(async rooms => {
-      console.log("each_rooom=========>", rooms);
-      const getUser = await UserSchema.findById(rooms.userId);
-      console.log('getUser===============>: ', getUser);
+    const resultArray = []
 
-      resultArray.push({
-        user: getUser,
-        room: rooms
-      });
-    }));
+    await Promise.all(
+      allrooms.map(async rooms => {
+        console.log('each_rooom=========>', rooms)
+        const getUser = await UserSchema.findById(rooms.userId)
+        console.log('getUser===============>: ', getUser)
 
-    res.json(resultArray); // Send the combined data as a JSON response
+        resultArray.push({
+          user: getUser,
+          room: rooms
+        })
+      })
+    )
+
+    res.json(resultArray) // Send the combined data as a JSON response
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'An error occurred.' });
+    console.error('Error:', error)
+    res.status(500).json({ error: 'An error occurred.' })
   }
-};
+}
 
 module.exports = {
   CancelBooking,
@@ -389,5 +363,6 @@ module.exports = {
   deleteRoom,
   bookedreview,
   updateRoom,
-  AddHotelRoom,AllBookedRooms
+  AddHotelRoom,
+  AllBookedRooms
 }

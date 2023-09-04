@@ -15,10 +15,10 @@ var cookieParser = require('cookie-parser')
 // console.log("hello world")
 require('./modals/config')
 app.use(cookieParser())
-// app.use(express.static(path.join(__dirname,'../Frontend/frontend/build')));
-// app.get('*',(async(req,res)=>{
-//     res.send(path.join(__dirname,'../Frontend/frontend/build/index.html'))
-// }))
+app.use(express.static(path.join(__dirname,'public')));
+app.get('*',(async(req,res)=>{
+    res.send(path.join(__dirname,'public'))
+}))
 // Serve the static files from the public folder
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
